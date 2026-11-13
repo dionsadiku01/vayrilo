@@ -1,0 +1,49 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build site folder (logo + self-hosted fonts)
+        run: |
+          set -e
+          mkdir -p _site/assets/fonts
+          cp index.html _site/
+          touch _site/.nojekyll
+          curl -fsSL -o _site/assets/vayrilo-logo.png \
+            https://vayrilo.my.canva.site/_assets/media/76c9f33987aec92ef156ace526ea7a4d.png
+          mkdir -p /tmp/fonts
+          for p in unbounded figtree; do
+            url=$(curl -fsSL https://registry.npmjs.org/@fontsource/$p/latest | python3 -c "import sys,json;print(json.load(sys.stdin)['dist']['tarball'])")
+            mkdir -p /tmp/fonts/$p
+            curl -fsSL "$url" | tar xz -C /tmp/fonts/$p
+          done
+          for w in 700 800; do cp /tmp/fonts/unbounded/package/files/unbounded-latin-$w-normal.woff2 _site/assets/fonts/; done
+          for w in 400 500 600 700; do cp /tmp/fonts/figtree/package/files/figtree-latin-$w-normal.woff2 _site/assets/fonts/; done
+          ls -lR _site
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
