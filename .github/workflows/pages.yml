@@ -28,6 +28,7 @@ jobs:
           set -e
           mkdir -p _site/assets/fonts
           cp index.html _site/
+          cp -r app _site/app
           touch _site/.nojekyll
           curl -fsSL -o _site/assets/vayrilo-logo.png \
             https://vayrilo.my.canva.site/_assets/media/76c9f33987aec92ef156ace526ea7a4d.png
@@ -38,7 +39,7 @@ jobs:
             curl -fsSL "$url" | tar xz -C /tmp/fonts/$p
           done
           for w in 700 800; do cp /tmp/fonts/unbounded/package/files/unbounded-latin-$w-normal.woff2 _site/assets/fonts/; done
-          for w in 400 500 600 700; do cp /tmp/fonts/figtree/package/files/figtree-latin-$w-normal.woff2 _site/assets/fonts/; done
+          for w in 400 500 600 700 800; do cp /tmp/fonts/figtree/package/files/figtree-latin-$w-normal.woff2 _site/assets/fonts/; done
           ls -lR _site
 
       - uses: actions/configure-pages@v5
