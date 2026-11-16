@@ -77,18 +77,19 @@ var HOTELS = {
     {id:'olapalma',name:'Hotel Ola Palma',place:'Playa de Palma',guests:14,ages:'20–29',tags:['Strandnah','Beach-Club'],img:'olapalma',badge:'ENTSPANNT',badgeBg:'#A99BFF'}
   ],
   ibiza:[{id:'calaviva',name:'Cala Viva Ibiza',place:'Sant Antoni',guests:18,ages:'21–30',tags:['Sunset-Bar','Bootstouren'],img:'ibiza',badge:'SUNSET',badgeBg:'#F4C77B'}],
-  goldstrand:[{id:'zlatna',name:'Hotel Zlatna Vibes',place:'Goldstrand',guests:27,ages:'18–24',tags:['Pool-Partys','Günstig'],img:'goldstrand',badge:'BUDGET',badgeBg:'#5EE6C0'}],
-  lloret:[{id:'marblava',name:'Mar Blava Lloret',place:'Lloret de Mar',guests:12,ages:'18–23',tags:['Clubs nebenan','Strand'],img:'lloret',badge:'NEU',badgeBg:'#FF7E6B'}]
+  mykonos:[], hvar:[]
 };
-var REGIONS = [['mallorca','Mallorca','casasol','68 Gäste'],['ibiza','Ibiza','ibiza','18 Gäste'],['goldstrand','Goldstrand','goldstrand','27 Gäste'],['lloret','Lloret','lloret','12 Gäste']];
+var REGIONS = [['mallorca','Mallorca','casasol','312 Leute'],['ibiza','Ibiza','ibiza','186 Leute'],['mykonos','Mykonos','goldstrand','bald',true],['hvar','Hvar','lloret','bald',true]];
+var MY_INTERESTS = ['Techno','Beachvolleyball','Bootstouren','Streetfood','Strand','Feiern'];
 var CREW = [
-  {id:'lena',name:'Lena',age:23,city:'Köln',dates:'11.–18.7.',interests:['Strand','Feiern','Beachvolleyball'],open:'Feiern, Leute kennenlernen',tag:'Feiern · Strand',online:true},
-  {id:'jonas',name:'Jonas',age:25,city:'Hamburg',dates:'12.–19.7.',interests:['Bootstour','Fußball','Techno'],open:'Feiern, Ausflüge',tag:'Techno · Boot',online:true},
-  {id:'sara',name:'Sara',age:22,city:'Wien',dates:'13.–19.7.',interests:['Tanzen','Sonne','Cocktails'],open:'Feiern, Leute kennenlernen',tag:'Tanzen · Sonne',online:true},
-  {id:'tim',name:'Tim',age:24,city:'München',dates:'12.–17.7.',interests:['Gym','Pool','Hip-Hop'],open:'Sport, Feiern',tag:'Gym · Pool',online:false},
-  {id:'mia',name:'Mia',age:21,city:'Zürich',dates:'14.–20.7.',interests:['Fotos','Strand','Ausflüge'],open:'Ausflüge, Leute kennenlernen',tag:'Fotos · Ausflüge',online:true},
-  {id:'luca',name:'Luca',age:26,city:'Mailand',dates:'10.–16.7.',interests:['DJ-Sets','Essen','Jetski'],open:'Feiern, Sport',tag:'DJ · Jetski',online:false}
+  {id:'lena',name:'Lena',age:23,city:'Köln',hotel:'casasol',dates:'11.–18.7.',interests:['Strand','Feiern','Beachvolleyball'],open:'Feiern, Leute kennenlernen',tag:'Feiern · Strand',online:true,likedMe:true,dating:false,hi:'Hey! Hab gesehen, du bist auch in der Crew. Kommst du heute zur Poolparty?'},
+  {id:'jonas',name:'Jonas',age:25,city:'Hamburg',hotel:'casasol',dates:'12.–19.7.',interests:['Bootstouren','Fußball','Techno'],open:'Feiern, Ausflüge',tag:'Techno · Boot',online:true,likedMe:true,dating:false,hi:'Yes, Match! Bist du am Mittwoch auch bei der Bootstour?'},
+  {id:'sara',name:'Sara',age:22,city:'Wien',hotel:'casasol',dates:'13.–19.7.',interests:['Tanzen','Strand','Cocktails'],open:'Feiern, Leute kennenlernen',tag:'Tanzen · Sonne',online:true,likedMe:false,dating:true,hi:'Hi! Schön, dass es gematcht hat.'},
+  {id:'tim',name:'Tim',age:24,city:'München',hotel:'casasol',dates:'12.–17.7.',interests:['Gym','Pool','Hip-Hop'],open:'Sport, Feiern',tag:'Gym · Pool',online:false,likedMe:true,dating:false,hi:'Servus! Morgen früh Gym und danach Pool?'},
+  {id:'mia',name:'Mia',age:21,city:'Zürich',hotel:'bahia',dates:'14.–20.7.',interests:['Fotos','Strand','Bootstouren'],open:'Ausflüge, Leute kennenlernen',tag:'Fotos · Ausflüge',online:true,likedMe:true,dating:true,hi:'Hey! Wir sind im Bahía Club. Kommt ihr Freitag mit an den Strand?'},
+  {id:'luca',name:'Luca',age:26,city:'Mailand',hotel:'olapalma',dates:'10.–16.7.',interests:['DJ-Sets','Streetfood','Jetski'],open:'Feiern, Sport',tag:'DJ · Jetski',online:false,likedMe:false,dating:false,hi:'Ciao! Danke fürs Hallo.'}
 ];
+var FREE_LIKES = 10;
 var EVENTS = [
   {id:'pool',title:'Poolparty mit DJ',day:'HEUTE',time:'21:00',when:'Heute · 21:00',where:'Pool, Casa Sol',host:'VOM HOTEL',hotel:true,count:32,img:'poolbar',av:['lena','jonas','sara']},
   {id:'boat',title:'Bootstour zur Cala Blava',day:'MI',time:'11:00',when:'Mi · 11:00',where:'Treffpunkt Lobby',host:'VOM HOTEL',hotel:true,count:18,img:'boat',av:['mia','luca','tim']},
@@ -102,7 +103,10 @@ var S = {
   hotel:null, chat:null, person:null, menu:false, toast:'',
   joined:{}, requested:{}, blocked:{}, invisible:false, tim:'pending',
   msgs:{}, draft:'', evFilter:'all', seenChats:false,
-  open:{party:true,trips:true,sport:false,people:true}
+  open:{party:true,trips:true,sport:false,people:true},
+  disc:'people', scope:'hotel', swiped:{}, matched:{}, likes:FREE_LIKES, pass:false,
+  match:null, passSheet:false, dating:false, selfie:false, checking:false,
+  planSheet:false, plan:{title:'',day:'Heute',time:'19:00',place:'Pool'}, planN:0
 };
 
 /* ---------- helpers ---------- */
@@ -110,9 +114,18 @@ function esc(t){ return String(t).replace(/[&<>"']/g,function(c){return {'&':'&a
 function crewById(id){ for(var i=0;i<CREW.length;i++) if(CREW[i].id===id) return CREW[i]; }
 function evById(id){ for(var i=0;i<EVENTS.length;i++) if(EVENTS[i].id===id) return EVENTS[i]; }
 function hotelById(id){ for(var k in HOTELS) for(var i=0;i<HOTELS[k].length;i++) if(HOTELS[k][i].id===id) return HOTELS[k][i]; }
-function connected(id){ return id==='lena' || (id==='tim' && S.tim==='accepted'); }
-function visibleCrew(){ return CREW.filter(function(p){ return !S.blocked[p.id]; }); }
-function directIds(){ return ['lena'].concat(S.tim==='accepted'?['tim']:[]).filter(function(id){ return !S.blocked[id]; }); }
+function connected(id){ return id==='lena' || (id==='tim' && S.tim==='accepted') || !!S.matched[id]; }
+function visibleCrew(){ return CREW.filter(function(p){ return !S.blocked[p.id] && p.hotel==='casasol'; }); }
+function directIds(){
+  var ids = ['lena'];
+  CREW.forEach(function(p){ if(p.id!=='lena' && connected(p.id)) ids.push(p.id); });
+  return ids.filter(function(id){ return !S.blocked[id]; });
+}
+function hotelName(id){ var h=hotelById(id); return h?h.name:''; }
+function common(p){ return p.interests.filter(function(t){ return MY_INTERESTS.indexOf(t)>-1; }); }
+function deck(){ return CREW.filter(function(p){ return !S.blocked[p.id] && !S.swiped[p.id] && !connected(p.id) && (S.scope==='island' || p.hotel==='casasol'); }); }
+function likedMeOpen(){ return CREW.filter(function(p){ return p.likedMe && !connected(p.id) && !S.blocked[p.id]; }); }
+function showDating(p){ return S.dating && p.dating; }
 function joinedCount(){ return Object.keys(S.joined).filter(function(k){return S.joined[k];}).length; }
 
 var ic = {
@@ -131,6 +144,10 @@ var ic = {
   wave:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a2 2 0 0 1 4 0v4M11 10V5a2 2 0 0 1 4 0v5M15 10V7a2 2 0 0 1 4 0v7a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L3 14a2 2 0 0 1 3.4-2L8 14"/></svg>',
   eyeoff:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10 10 0 0 1 12 20c-7 0-10-8-10-8a18 18 0 0 1 5.1-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 10 8 10 8a18 18 0 0 1-2.2 3.2M1 1l22 22"/></svg>',
   gear:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  x:'<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  heart:'<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>',
+  info:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>',
+  ticket:'<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v12" stroke-dasharray="2 2"/></svg>',
   tabs:{
     discover:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>',
     trip:'<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>',
@@ -153,10 +170,11 @@ function baseMsgs(id){
     {from:'Hotel Casa Sol',who:'hotel',hotel:true,text:'Willkommen, Crew! Heute 21 Uhr Poolparty, das erste Getränk geht aufs Haus.'},
     {from:'Sara',who:'sara',text:GROUP_PREVIEW}
   ];
-  if(id==='lena') return [{from:'Lena',who:'lena',text:'Hey! Hab gesehen, du bist auch in der Crew. Kommst du heute zur Poolparty?'}];
-  if(id==='tim') return [{from:'Tim',who:'tim',text:'Servus! Morgen früh Gym und danach Pool?'}];
+  var cp = crewById(id);
+  if(cp) return [{from:cp.name,who:cp.id,text:cp.hi}];
   if(id.indexOf('ev-')===0){
     var ev = evById(id.slice(3));
+    if(ev.mine) return [{from:'Vayrilo',who:'hotel',hotel:true,text:'Dein Plan ist online. Alle aus der Crew Casa Sol können ihn sehen und mitmachen.'}];
     return [
       {from:ev.hotel?'Hotel Casa Sol':'Jonas',who:ev.hotel?'hotel':'jonas',hotel:ev.hotel,text:'Schön, dass du dabei bist! '+ev.when+', '+ev.where+'.'},
       {from:'Lena',who:'lena',text:'Yes, endlich! Wer will vorher noch was essen?'}
@@ -168,7 +186,7 @@ function allMsgs(id){ return baseMsgs(id).concat(S.msgs[id]||[]); }
 function chatMeta(id){
   if(id==='group') return {title:'Crew Casa Sol',sub:'23 Mitglieder · 9 online',img:IMG.casasol,radius:'14px',note:'Nur bestätigte Gäste · endet 24 h nach Abreise',isGroup:true,isDirect:false};
   if(id.indexOf('ev-')===0){ var ev=evById(id.slice(3)); return {title:ev.title,sub:ev.when+' · '+(ev.count+1)+' dabei',img:IMG[ev.img],radius:'14px',note:'Event-Chat · endet nach dem Event',isGroup:true,isDirect:false}; }
-  var p=crewById(id); return {title:p.name+', '+p.age,sub:'online · aus deiner Crew',img:P[p.id],radius:'22px',note:'Ihr habt beide Hallo gesagt',isGroup:false,isDirect:true};
+  var p=crewById(id); return {title:p.name+', '+p.age,sub:(p.hotel==='casasol'?'aus deiner Crew':'Match · '+hotelName(p.hotel)),img:P[p.id],radius:'22px',note:'Ihr habt beide Hallo gesagt',isGroup:false,isDirect:true};
 }
 
 /* ---------- views ---------- */
@@ -183,7 +201,7 @@ function vSplash(){
     '</div>'+
     '<div class="col" style="gap:18px">'+
       '<h1 class="u" style="margin:0;font-weight:800;font-size:40px;line-height:1.05;letter-spacing:-1.5px">Dein Hotel.<br><span style="color:var(--mint)">Deine Crew.</span><br>Dein Sommer.</h1>'+
-      '<div style="color:var(--soft);font-size:16px;line-height:1.5">Sieh, wer zur gleichen Zeit in deinem Hotel ist, und erlebt den Urlaub zusammen.</div>'+
+      '<div style="color:var(--soft);font-size:16px;line-height:1.5">Lern deine Leute kennen, bevor du landest: in deinem Hotel und auf der ganzen Insel.</div>'+
       '<div class="row" style="gap:12px">'+stack(['lena','jonas','sara','tim'],34,'#070C22')+
         '<div style="font-size:13px;color:var(--soft);line-height:1.35"><b style="color:var(--txt)">23 Leute</b> warten schon<br>an der Playa de Palma</div></div>'+
       '<label class="row" style="gap:12px;color:var(--soft);font-size:14px;cursor:pointer;margin-top:6px"><input type="checkbox" data-a="adult" '+(S.adult?'checked':'')+' style="width:22px;height:22px;accent-color:#5EE6C0">Ich bin mindestens 18 Jahre alt.</label>'+
@@ -206,17 +224,96 @@ function vVerify(){
     '<div class="col" style="gap:8px"><label for="code" style="font-size:12px;font-weight:800;color:var(--mint);letter-spacing:1px">HOTEL-CODE</label>'+
     '<input id="code" data-input="code" value="'+esc(S.code)+'" autocomplete="off" style="height:60px;border-radius:18px;border:2px solid var(--mint);background:var(--card);color:var(--txt);font-family:Unbounded,Figtree,sans-serif;font-size:22px;letter-spacing:4px;padding:0 18px;font-weight:700"></div>'+
     '<div style="flex:1"></div>'+
-    '<button type="button" class="btn btn-mint" data-a="confirm" style="height:58px;border-radius:29px;font-size:17px">Bestätigen &amp; Crew sehen</button>'+
+    '<button type="button" class="btn btn-mint" data-a="confirm" style="height:58px;border-radius:29px;font-size:17px">Bestätigen'+ic.arrow+'</button>'+
     '<button type="button" class="btn btn-ghost" data-a="scan">'+ic.qr+'QR-Code scannen</button>'+
   '</div></div>';
 }
 
+function vSelfie(){
+  var ring = S.checking ? 'conic-gradient(var(--mint) 0 70%,#2A356A 70% 100%)' : 'var(--mint)';
+  return '<div class="abs col" style="inset:0;padding:calc(env(safe-area-inset-top) + 18px) 22px calc(env(safe-area-inset-bottom) + 30px);gap:18px">'+
+    '<div class="row" style="justify-content:space-between"><button type="button" class="icon-btn" aria-label="Zurück" data-a="selfieBack" style="background:var(--card)">'+ic.back+'</button>'+
+    ''+(S.inApp?'':'<span style="font-size:13px;font-weight:700;color:var(--muted)">Schritt 2 von 2</span>')+'</div>'+
+    '<div class="col" style="gap:8px"><div class="kicker" style="color:var(--mint)">SELFIE-CHECK</div><h1 class="u" style="margin:0;font-weight:800;font-size:26px;line-height:1.15">Zeig kurz,<br>dass du echt bist.</h1>'+
+    '<div style="color:var(--muted);line-height:1.5;font-size:14px">Wir vergleichen das Selfie mit deinen Profilfotos. Danach bekommst du den grünen Haken. Das Selfie selbst sieht niemand.</div></div>'+
+    '<div class="col" style="flex:1;align-items:center;justify-content:center">'+
+      '<div style="width:230px;height:230px;border-radius:50%;padding:5px;background:'+ring+'"><div style="width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;border:5px solid var(--bg)"><img class="fill" src="'+P.alex+'" alt="Kamerabild: dein Gesicht"></div></div>'+
+      '<div style="margin-top:16px;font-size:14px;font-weight:700;color:'+(S.checking?'var(--mint)':'var(--soft)')+'">'+(S.checking?'Wird geprüft …':'Gesicht in den Kreis halten')+'</div></div>'+
+    '<button type="button" class="btn btn-mint" data-a="selfie" '+(S.checking?'disabled':'')+' style="height:58px;border-radius:29px;font-size:17px">Selfie aufnehmen</button>'+
+    '<button type="button" data-a="selfieLater" style="height:40px;border:none;background:transparent;color:var(--muted);font-size:14px;font-weight:600">Später machen</button>'+
+  '</div>';
+}
+
 function vDiscover(){
+  var seg = [['people','Leute'],['hotels','Hotels']].map(function(s){
+    var on = S.disc===s[0];
+    return '<button type="button" data-a="disc" data-v="'+s[0]+'" aria-pressed="'+on+'" style="flex:1;height:40px;border:none;border-radius:20px;font-size:14px;font-weight:800;background:'+(on?'#F4F6FF':'transparent')+';color:'+(on?'#070C22':'#A7B0D6')+'">'+s[1]+'</button>';
+  }).join('');
+  return '<div class="col in" style="gap:16px;padding:calc(env(safe-area-inset-top) + 20px) 0 10px">'+
+    '<div class="row" style="justify-content:space-between;align-items:flex-end;padding:0 20px"><div class="col" style="gap:4px"><div class="kicker" style="color:var(--mint)">MALLORCA · 12.–19. JULI</div><h1 class="h1" style="margin:0">Entdecken</h1></div>'+
+    '<img src="'+P.alex+'" alt="Dein Profilbild" style="width:42px;height:42px;border-radius:21px;object-fit:cover;border:2px solid var(--mint)"></div>'+
+    '<div class="row" style="margin:0 20px;padding:4px;border-radius:24px;background:var(--card);border:1px solid var(--line)">'+seg+'</div>'+
+    (S.disc==='people'?vPeople():vHotelList())+'</div>';
+}
+
+function vPeople(){
+  var scopes = [['hotel','Casa Sol',CREW.filter(function(p){return p.hotel==='casasol';}).length+19],['island','Ganz Mallorca',312]].map(function(s){
+    var on = S.scope===s[0];
+    return '<button type="button" data-a="scope" data-v="'+s[0]+'" aria-pressed="'+on+'" style="height:36px;padding:0 14px;border-radius:18px;border:1.5px solid '+(on?'#5EE6C0':'#2A356A')+';background:'+(on?'rgba(94,230,192,.14)':'transparent')+';color:'+(on?'#5EE6C0':'#D6DBF2')+';font-size:13px;font-weight:800">'+s[1]+' · '+s[2]+'</button>';
+  }).join('');
+  var lm = likedMeOpen();
+  var teaser = !lm.length ? '' :
+    '<button type="button" data-a="'+(S.pass?'scope':'passOpen')+'" data-v="island" class="row" style="margin:0 20px;gap:12px;text-align:left;border:1px solid rgba(244,199,123,.45);border-radius:22px;background:linear-gradient(135deg,#2E2A3A,#1A2350);padding:12px 14px">'+
+      '<span class="stack" style="padding-left:12px">'+lm.map(function(p){ return '<img src="'+P[p.id]+'" alt="" style="width:36px;height:36px;border:2px solid #1A2350;margin-left:-12px;'+(S.pass?'':'filter:blur(5px)')+'">'; }).join('')+'</span>'+
+      '<span class="col" style="flex:1;gap:2px"><span style="font-weight:800;font-size:14px">'+lm.length+' Leute haben dir Hallo gesagt</span><span style="font-size:12px;color:var(--sand);font-weight:700">'+(S.pass?'Sag zurück Hallo, dann ist es ein Match':'Mit dem Vayrilo Pass siehst du, wer')+'</span></span>'+ic.chev+'</button>';
+  var d = deck();
+  var card;
+  if(!d.length){
+    card = '<div class="col" style="margin:0 20px;height:440px;align-items:center;justify-content:center;gap:14px;text-align:center;border-radius:30px;border:1.5px dashed #2A356A;padding:24px">'+
+      '<div class="u" style="font-weight:700;font-size:19px">Alle gesehen</div>'+
+      '<div style="color:var(--muted);font-size:14px;line-height:1.5">'+(S.scope==='hotel'?'Das war deine Hotel-Crew. Auf ganz Mallorca sind diese Woche noch viel mehr Leute.':'Neue Leute kommen jeden Tag dazu. Schau bei den Events vorbei, dort lernst du am schnellsten Leute kennen.')+'</div>'+
+      (S.scope==='hotel'?'<button type="button" class="btn btn-mint" data-a="scope" data-v="island" style="height:50px;width:auto;padding:0 22px">Ganz Mallorca zeigen</button>':'<button type="button" class="btn btn-mint" data-a="tab" data-v="events" style="height:50px;width:auto;padding:0 22px">Zu den Events</button>')+'</div>';
+  } else {
+    var p = d[0], nx = d[1], same = p.hotel==='casasol', com = common(p);
+    var behind = nx ? '<div class="abs" style="inset:0;transform:scale(.94) translateY(16px);border-radius:30px;overflow:hidden;opacity:.55"><img class="fill" src="'+P[nx.id]+'" alt=""></div>' : '';
+    card = '<div style="position:relative;margin:0 20px;height:440px">'+behind+
+      '<div id="swipe" data-id="'+p.id+'" class="abs" style="inset:0;border-radius:30px;overflow:hidden;background:var(--card);touch-action:pan-y;box-shadow:0 18px 40px rgba(0,0,0,.45);cursor:grab">'+
+        '<img class="fill" src="'+P[p.id]+'" alt="'+p.name+', '+p.age+'" draggable="false">'+
+        '<div class="abs" style="inset:0;background:linear-gradient(180deg,rgba(7,12,34,.35) 0%,rgba(7,12,34,0) 25%,rgba(7,12,34,0) 50%,rgba(7,12,34,.95) 100%)"></div>'+
+        '<span class="abs u stamp-like" style="top:26px;left:20px;padding:6px 12px;border:3px solid var(--mint);color:var(--mint);border-radius:12px;font-weight:800;font-size:20px;transform:rotate(-12deg);opacity:0">HALLO</span>'+
+        '<span class="abs u stamp-pass" style="top:26px;right:20px;padding:6px 12px;border:3px solid var(--coral);color:var(--coral);border-radius:12px;font-weight:800;font-size:20px;transform:rotate(12deg);opacity:0">WEITER</span>'+
+        '<div class="abs row" style="top:14px;left:14px;right:14px;gap:6px;flex-wrap:wrap">'+
+          '<span class="chip" style="font-size:11px;background:'+(same?'var(--mint)':'#F4F6FF')+'">'+(same?'DEIN HOTEL':esc(hotelName(p.hotel)).toUpperCase())+'</span>'+
+          '<span class="chip glass" style="font-size:11px;color:var(--txt);background:rgba(7,12,34,.55)">Selfie ✓</span>'+
+          (showDating(p)?'<span class="chip" style="font-size:11px;background:#FF9CC2;display:inline-flex;gap:4px;align-items:center">'+ic.heart+'Auch offen für Dates</span>':'')+'</div>'+
+        '<div class="abs col" style="left:18px;right:18px;bottom:16px;gap:8px">'+
+          '<div class="row" style="justify-content:space-between;align-items:flex-end"><div class="col" style="gap:3px"><span class="u" style="font-weight:800;font-size:26px">'+p.name+', '+p.age+'</span>'+
+          '<span style="color:var(--soft);font-size:14px">'+p.city+' · da vom '+p.dates+'</span></div>'+
+          '<button type="button" class="icon-btn glass" data-a="person" data-v="'+p.id+'" aria-label="Ganzes Profil von '+p.name+'">'+ic.info+'</button></div>'+
+          (com.length?'<div style="font-size:13px;font-weight:700;color:var(--mint)">Gemeinsam: '+com.join(', ')+'</div>':'')+
+          '<div class="row" style="gap:6px;flex-wrap:wrap">'+p.interests.map(function(t){return '<span class="glass" style="font-size:12px;font-weight:700;padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.14)">'+t+'</span>';}).join('')+'</div>'+
+        '</div></div></div>'+
+      '<div class="row" style="justify-content:center;gap:22px">'+
+        '<button type="button" data-a="swPass" aria-label="Weiter" style="width:64px;height:64px;border-radius:32px;border:2px solid #2A356A;background:var(--card);color:var(--coral);display:flex;align-items:center;justify-content:center">'+ic.x+'</button>'+
+        '<button type="button" data-a="swLike" aria-label="Hallo sagen" style="height:64px;padding:0 28px;border-radius:32px;border:none;background:var(--mint);color:var(--bg);font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px">'+ic.wave+'Hallo sagen</button></div>';
+  }
+  var foot = S.pass ? '<span style="color:var(--sand);font-weight:800">Pass aktiv</span> · unbegrenzt Hallo sagen' : 'Noch <b style="color:var(--txt)">'+S.likes+'</b> Hallos heute · <button type="button" data-a="passOpen" style="border:none;background:transparent;color:var(--sand);font-weight:800;padding:0;font-size:13px">Unbegrenzt mit Pass</button>';
+  return '<div class="row" style="gap:8px;padding:0 20px">'+scopes+'</div>'+teaser+card+
+    '<div style="text-align:center;font-size:13px;color:var(--muted);padding:0 20px">'+foot+'</div>'+
+    '<div class="row" style="gap:10px;align-items:flex-start;font-size:12px;color:var(--muted);line-height:1.45;padding:0 24px"><span style="color:var(--mint);flex-shrink:0">'+ic.shield+'</span>Schreiben könnt ihr erst, wenn ihr beide Hallo gesagt habt. Wer dich nicht interessiert, erfährt nichts davon.</div>';
+}
+
+function vHotelList(){
   var regions = REGIONS.map(function(r){
     return '<button type="button" data-a="region" data-v="'+r[0]+'" aria-pressed="'+(S.region===r[0])+'" style="flex-shrink:0;width:112px;height:132px;padding:0;border-radius:20px;border:3px solid '+(S.region===r[0]?'var(--mint)':'transparent')+';position:relative;overflow:hidden;background:var(--card)">'+
-      '<img class="fill" src="'+IMG[r[2]]+'" alt=""><span class="shade-b"></span>'+
-      '<span class="abs col" style="left:10px;right:10px;bottom:10px;text-align:left;gap:2px"><span style="font-weight:800;font-size:14px">'+r[1]+'</span><span style="color:var(--mint);font-weight:700;font-size:11px">'+r[3]+'</span></span></button>';
+      '<img class="fill" src="'+IMG[r[2]]+'" alt="" style="'+(r[4]?'filter:grayscale(.7) brightness(.7)':'')+'"><span class="shade-b"></span>'+
+      '<span class="abs col" style="left:10px;right:10px;bottom:10px;text-align:left;gap:2px"><span style="font-weight:800;font-size:14px">'+r[1]+'</span><span style="color:'+(r[4]?'var(--sand)':'var(--mint)')+';font-weight:700;font-size:11px">'+r[3]+'</span></span></button>';
   }).join('');
+  if(!HOTELS[S.region].length){
+    var rn = REGIONS.filter(function(r){return r[0]===S.region;})[0][1];
+    return '<div class="hscroll" style="gap:10px;padding:0 20px">'+regions+'</div>'+
+      '<div class="col card" style="margin:0 20px;gap:12px;padding:22px;text-align:center;align-items:center"><div class="u" style="font-weight:700;font-size:18px">'+rn+' kommt bald</div><div style="color:var(--muted);font-size:14px;line-height:1.5">Wir starten erst, wenn genug Leute da sind. Trag dich ein, dann melden wir uns.</div><button type="button" class="btn btn-mint" data-a="notify" data-v="'+rn+'" style="height:48px;width:auto;padding:0 22px">Benachrichtige mich</button></div>';
+  }
   var hotels = HOTELS[S.region].map(function(h){
     return '<button type="button" data-a="hotel" data-v="'+h.id+'" style="position:relative;height:260px;border:none;padding:0;border-radius:26px;overflow:hidden;text-align:left;background:var(--card);width:100%">'+
       '<img class="fill" src="'+IMG[h.img]+'" alt="'+esc(h.name)+'">'+
@@ -229,13 +326,10 @@ function vDiscover(){
         '<span class="row" style="gap:6px;flex-wrap:wrap">'+h.tags.map(function(t){return '<span class="glass" style="font-size:12px;font-weight:700;padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.14)">'+t+'</span>';}).join('')+'</span>'+
       '</span></button>';
   }).join('');
-  return '<div class="col in" style="gap:20px;padding:calc(env(safe-area-inset-top) + 20px) 0 10px">'+
-    '<div class="row" style="justify-content:space-between;align-items:flex-end;padding:0 20px"><div class="col" style="gap:4px"><div class="kicker" style="color:var(--mint)">12.–19. JULI</div><h1 class="h1" style="margin:0">Wo ist was los?</h1></div>'+
-    '<img src="'+P.alex+'" alt="Dein Profilbild" style="width:42px;height:42px;border-radius:21px;object-fit:cover;border:2px solid var(--mint)"></div>'+
-    '<label class="row" style="margin:0 20px;gap:10px;height:50px;border-radius:25px;background:var(--card);border:1px solid var(--line);padding:0 18px;color:var(--muted)">'+ic.search+'<span class="sr">Suche</span><input placeholder="Hotel oder Ort suchen" style="flex:1;border:none;background:transparent;color:var(--txt);font-size:15px;outline:none"></label>'+
+  return '<label class="row" style="margin:0 20px;gap:10px;height:50px;border-radius:25px;background:var(--card);border:1px solid var(--line);padding:0 18px;color:var(--muted)">'+ic.search+'<span class="sr">Suche</span><input placeholder="Hotel oder Ort suchen" style="flex:1;border:none;background:transparent;color:var(--txt);font-size:15px;outline:none"></label>'+
     '<div class="hscroll" style="gap:10px;padding:0 20px">'+regions+'</div>'+
-    '<div class="row" style="justify-content:space-between;align-items:baseline;padding:0 20px"><div class="h2">Hotels mit Crew</div><div style="font-size:12px;color:var(--muted)">nur Zahlen, keine Namen</div></div>'+
-    '<div class="col" style="gap:16px;padding:0 20px">'+hotels+'</div></div>';
+    '<div class="row" style="justify-content:space-between;align-items:baseline;padding:0 20px"><div class="h2">Partnerhotels</div><div style="font-size:12px;color:var(--muted)">nur Zahlen, keine Namen</div></div>'+
+    '<div class="col" style="gap:16px;padding:0 20px">'+hotels+'</div>';
 }
 
 function vTrip(){
@@ -262,6 +356,10 @@ function vTrip(){
   '</button></div>'+
   '<div class="col" style="gap:12px"><div class="row" style="justify-content:space-between;align-items:baseline;padding:0 20px"><div class="h2">Deine Crew</div><button type="button" data-a="more" style="border:none;background:transparent;color:var(--mint);font-weight:700;font-size:14px;padding:0">Alle 23</button></div>'+
   '<div class="hscroll" style="gap:12px;padding:0 20px">'+crew+'</div></div>'+
+  '<div style="padding:0 20px"><button type="button" data-a="island" class="row" style="width:100%;gap:14px;text-align:left;border:1px solid var(--line);border-radius:24px;background:var(--card);padding:14px">'+
+    '<span style="width:52px;height:52px;border-radius:18px;overflow:hidden;position:relative;flex-shrink:0;display:block"><img class="fill" src="'+IMG.olapalma+'" alt=""></span>'+
+    '<span class="col" style="gap:3px;flex:1"><span style="font-weight:800">312 Leute auf Mallorca</span><span style="font-size:13px;color:var(--muted)">diese Woche, aus 9 Partnerhotels</span></span>'+
+    '<span style="font-size:13px;font-weight:800;color:var(--mint)">Entdecken</span></button></div>'+
   '<div class="col" style="gap:12px;padding:0 20px"><div class="row" style="gap:8px"><span class="live"></span><div class="h2">Heute im Hotel</div></div>'+
     '<button type="button" data-a="tab" data-v="events" style="position:relative;height:190px;border:none;padding:0;border-radius:26px;overflow:hidden;text-align:left;background:var(--card)">'+
     '<img class="fill" src="'+IMG.poolbar+'" alt="Poolbar bei Sonnenuntergang"><span class="shade-b"></span>'+
@@ -271,7 +369,7 @@ function vTrip(){
 }
 
 function vEvents(){
-  var filters = [['all','Alle'],['hotel','Vom Hotel'],['guests','Von Gästen']].map(function(f){
+  var filters = [['all','Alle'],['hotel','Vom Hotel'],['guests','Plans von Gästen']].map(function(f){
     var on = S.evFilter===f[0];
     return '<button type="button" data-a="evf" data-v="'+f[0]+'" aria-pressed="'+on+'" style="height:40px;padding:0 16px;border-radius:20px;border:1px solid '+(on?'#F4F6FF':'#2A356A')+';font-size:14px;font-weight:700;background:'+(on?'#F4F6FF':'transparent')+';color:'+(on?'#070C22':'#F4F6FF')+'">'+f[1]+'</button>';
   }).join('');
@@ -295,8 +393,8 @@ function vEvents(){
   }).join('');
   return '<div class="col in" style="gap:18px;padding:calc(env(safe-area-inset-top) + 20px) 20px 10px">'+
     '<div class="row" style="justify-content:space-between;align-items:flex-end"><div class="col" style="gap:4px"><div class="kicker" style="color:var(--coral)">CASA SOL · DIESE WOCHE</div><h1 class="h1" style="margin:0">Events</h1></div>'+
-    '<button type="button" data-a="create" aria-label="Event erstellen" style="width:50px;height:50px;border-radius:25px;border:none;background:var(--coral);color:var(--bg);display:flex;align-items:center;justify-content:center">'+ic.plus+'</button></div>'+
-    '<div class="row" style="gap:8px">'+filters+'</div>'+list+'</div>';
+    '<button type="button" data-a="create" aria-label="Plan erstellen" style="height:50px;padding:0 16px 0 12px;border-radius:25px;border:none;background:var(--coral);color:var(--bg);display:flex;align-items:center;justify-content:center;gap:4px;font-weight:800;font-size:14px">'+ic.plus+'Plan</button></div>'+
+    '<div class="row" style="gap:8px;flex-wrap:wrap">'+filters+'</div>'+list+'</div>';
 }
 
 function vChats(){
@@ -331,7 +429,7 @@ function vChats(){
       '<span class="col" style="gap:3px;flex:1;min-width:0"><span class="row" style="justify-content:space-between"><span style="font-weight:800">Crew Casa Sol</span><span style="font-size:12px;color:var(--mint);font-weight:700">jetzt</span></span><span class="ell" style="font-size:13px;color:var(--muted)">Sara: '+GROUP_PREVIEW+'</span></span>'+
       '<span style="min-width:22px;height:22px;border-radius:11px;background:var(--mint);color:var(--bg);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center">3</span></button>'+
     evChats+direct+noEv+
-    '<div class="row" style="gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);line-height:1.45;padding:4px 4px 0"><span style="color:var(--mint);flex-shrink:0">'+ic.shield+'</span>Einzelchats gibt es nur, wenn beide zustimmen. Tippe in deiner Crew auf ein Profil und sag Hallo.</div></div>';
+    '<div class="row" style="gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);line-height:1.45;padding:4px 4px 0"><span style="color:var(--mint);flex-shrink:0">'+ic.shield+'</span>Einzelchats gibt es nur, wenn ihr beide Hallo gesagt habt. Neue Leute findest du unter Entdecken.</div></div>';
 }
 
 function vProfile(){
@@ -349,7 +447,7 @@ function vProfile(){
     '<button type="button" class="icon-btn glass abs" data-a="settings" aria-label="Einstellungen" style="top:calc(env(safe-area-inset-top) + 18px);right:18px">'+ic.gear+'</button>'+
     '<div class="abs row" style="left:20px;right:20px;bottom:-36px;align-items:flex-end;gap:14px">'+
       '<img src="'+P.alex+'" alt="Alex" style="width:104px;height:104px;border-radius:34px;object-fit:cover;border:4px solid #070C22">'+
-      '<div class="col" style="gap:4px;padding-bottom:6px;flex:1"><div class="row" style="gap:6px"><h1 class="u" style="margin:0;font-weight:800;font-size:22px">Alex, 23</h1>'+ic.verified+'</div><div style="color:var(--muted);font-size:14px">Berlin</div></div>'+
+      '<div class="col" style="gap:4px;padding-bottom:6px;flex:1"><div class="row" style="gap:6px"><h1 class="u" style="margin:0;font-weight:800;font-size:22px">Alex, 23</h1>'+(S.selfie?ic.verified:'')+'</div><div style="color:var(--muted);font-size:14px">Berlin</div></div>'+
     '</div></div>'+
   '<div class="col" style="gap:20px;padding:40px 20px 0">'+
     '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">'+stat(2,'Trips','#5EE6C0')+stat(5+joinedCount(),'Events','#FF7E6B')+stat(4+directIds().length,'Kontakte','#A99BFF')+'</div>'+
@@ -358,8 +456,13 @@ function vProfile(){
       '<img src="'+IMG.boat+'" alt="Profilfoto 2" style="width:100%;height:128px;border-radius:18px;object-fit:cover">'+
       '<button type="button" data-a="edit" aria-label="Foto hinzufügen" style="height:128px;border-radius:18px;border:2px dashed #2A356A;background:transparent;color:var(--mint);display:flex;align-items:center;justify-content:center">'+ic.plus+'</button></div>'+
     '<div class="col" style="gap:10px"><div style="font-weight:800">Interessen</div><div class="row" style="gap:8px;flex-wrap:wrap">'+chip('Techno','#2A1E3E','#FF9C8E')+chip('Beachvolleyball','#123B3A','#5EE6C0')+chip('Bootstouren','#24205A','#C9C0FF')+chip('Streetfood','#3A3018','#F4C77B')+'</div></div>'+
+    (S.selfie?'':'<button type="button" data-a="toSelfie" class="row" style="gap:12px;text-align:left;border:1px solid var(--mint);border-radius:22px;background:rgba(94,230,192,.08);padding:14px"><span style="color:var(--mint)">'+ic.shield+'</span><span class="col" style="flex:1;gap:2px"><span style="font-weight:800">Selfie-Check machen</span><span style="font-size:12px;color:var(--muted)">Mit grünem Haken sagen viel mehr Leute Hallo.</span></span>'+ic.chev+'</button>')+
     '<div class="col" style="gap:10px"><div style="font-weight:800">Offen für</div><div class="row" style="gap:8px;flex-wrap:wrap">'+open+'</div></div>'+
     '<div class="col card" style="padding:4px 16px">'+
+      '<div class="row" style="gap:12px;min-height:72px"><span style="width:40px;height:40px;border-radius:14px;background:#3A1F33;color:#FF9CC2;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic.heart+'</span>'+
+      '<div class="col" style="gap:2px;flex:1"><div style="font-weight:700">Offen für Dates</div><div style="font-size:12px;color:var(--muted);line-height:1.4">Nur Leute, die das auch eingeschaltet haben, sehen es bei dir.</div></div>'+
+      '<button type="button" role="switch" aria-checked="'+S.dating+'" aria-label="Offen für Dates" data-a="dating" style="width:54px;height:32px;border-radius:16px;border:none;padding:3px;display:flex;justify-content:'+(S.dating?'flex-end':'flex-start')+';background:'+(S.dating?'#FF9CC2':'#2A356A')+';flex-shrink:0"><span style="width:26px;height:26px;border-radius:13px;background:#F4F6FF;display:block"></span></button></div>'+
+      '<div style="height:1px;background:#1E2852"></div>'+
       '<div class="row" style="gap:12px;min-height:66px"><span style="width:40px;height:40px;border-radius:14px;background:#24205A;color:#C9C0FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic.eyeoff+'</span>'+
       '<div class="col" style="gap:2px;flex:1"><div style="font-weight:700">Unsichtbar-Modus</div><div style="font-size:12px;color:var(--muted)">Du siehst die Crew, sie sieht dich nicht.</div></div>'+
       '<button type="button" role="switch" aria-checked="'+S.invisible+'" aria-label="Unsichtbar-Modus" data-a="invis" style="width:54px;height:32px;border-radius:16px;border:none;padding:3px;display:flex;justify-content:'+(S.invisible?'flex-end':'flex-start')+';background:'+(S.invisible?'#5EE6C0':'#2A356A')+';flex-shrink:0"><span style="width:26px;height:26px;border-radius:13px;background:#F4F6FF;display:block"></span></button></div>'+
@@ -368,7 +471,7 @@ function vProfile(){
     '</div>'+
     '<div class="col" style="gap:10px"><div style="font-weight:800">Frühere Trips</div>'+
       '<div style="position:relative;height:110px;border-radius:22px;overflow:hidden"><img class="fill" src="'+IMG.goldstrand+'" alt=""><div class="abs" style="inset:0;background:linear-gradient(90deg,rgba(7,12,34,.92) 0%,rgba(7,12,34,.2) 100%)"></div><div class="abs col" style="left:16px;top:0;bottom:0;justify-content:center;gap:3px"><div class="u" style="font-weight:700;font-size:16px">Hotel Zlatna Vibes</div><div style="font-size:13px;color:var(--soft)">Goldstrand · August 2026 · 4 Kontakte</div></div></div></div>'+
-    '<div class="col card" style="padding:4px 16px">'+srow('settings','Benachrichtigungen',ic.chev,false)+srow('settings','Datenschutz &amp; Sicherheit',ic.chev,true)+srow('plus','Vayrilo Plus','<span style="font-size:11px;font-weight:800;color:#070C22;background:var(--sand);border-radius:8px;padding:3px 8px">BALD</span>',true)+'</div>'+
+    '<div class="col card" style="padding:4px 16px">'+srow('settings','Benachrichtigungen',ic.chev,false)+srow('settings','Datenschutz &amp; Sicherheit',ic.chev,true)+srow('passOpen','Vayrilo Pass','<span style="font-size:11px;font-weight:800;color:#070C22;background:var(--sand);border-radius:8px;padding:3px 8px">'+(S.pass?'AKTIV · MALLORCA':'9,99 € PRO REISE')+'</span>',true)+'</div>'+
     '<p style="margin:0;font-size:12px;color:#7F88B3;text-align:center">Test-App · alle Daten sind Beispiele · Fotos: Unsplash</p>'+
   '</div></div>';
 }
@@ -438,19 +541,71 @@ function vPerson(){
   var action = conn ?
     '<button type="button" class="btn btn-mint" data-a="chat" data-v="'+p.id+'">Nachricht schreiben</button>' :
     req ? '<div class="btn" style="border:2px solid var(--mint);color:var(--mint)">'+ic.check+'Hallo gesendet</div>' :
-    '<button type="button" class="btn btn-mint" data-a="hello" data-v="'+p.id+'">'+ic.wave+'Hallo sagen</button><div style="font-size:12px;color:var(--muted);text-align:center;margin-top:-4px">Ihr könnt schreiben, sobald '+p.name+' zustimmt.</div>';
+    '<button type="button" class="btn btn-mint" data-a="hello" data-v="'+p.id+'">'+ic.wave+'Hallo sagen</button><div style="font-size:12px;color:var(--muted);text-align:center;margin-top:-4px">Ihr könnt schreiben, sobald '+p.name+' auch Hallo sagt.</div>';
+  var where = p.hotel==='casasol' ? 'im Hotel' : 'im '+hotelName(p.hotel);
   return '<div class="abs col" role="dialog" aria-modal="true" aria-label="Profil von '+p.name+'" style="inset:0;background:rgba(4,7,20,.75);justify-content:flex-end;z-index:7">'+
     '<button type="button" aria-label="Schließen" data-a="closePerson" style="flex:1;border:none;background:transparent"></button>'+
     '<div class="col in" style="background:var(--card);border-radius:32px 32px 0 0;overflow:hidden">'+
       '<div style="position:relative;height:300px"><img class="fill" src="'+P[p.id]+'" alt="'+p.name+', '+p.age+'">'+
         '<div class="abs" style="inset:0;background:linear-gradient(180deg,rgba(17,26,61,0) 45%,#111A3D 100%)"></div>'+
         '<div class="abs row" style="top:12px;left:0;right:0;justify-content:center"><span style="width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.7);display:block"></span></div>'+
-        '<div class="abs col" style="left:20px;bottom:6px;gap:4px"><div class="row" style="gap:8px"><span class="u" style="font-weight:800;font-size:26px">'+p.name+', '+p.age+'</span>'+ic.verified+'</div><div style="color:var(--soft);font-size:14px">'+p.city+' · im Hotel '+p.dates+'</div></div></div>'+
+        '<div class="abs col" style="left:20px;bottom:6px;gap:4px"><div class="row" style="gap:8px"><span class="u" style="font-weight:800;font-size:26px">'+p.name+', '+p.age+'</span>'+ic.verified+'</div><div style="color:var(--soft);font-size:14px">'+p.city+' · '+where+' '+p.dates+'</div></div></div>'+
       '<div class="col" style="gap:14px;padding:12px 20px calc(env(safe-area-inset-bottom) + 26px)">'+
+        (showDating(p)?'<span class="chip" style="align-self:flex-start;font-size:12px;background:#FF9CC2;display:inline-flex;gap:5px;align-items:center">'+ic.heart+'Ihr seid beide offen für Dates</span>':'')+
         '<div class="row" style="gap:6px;flex-wrap:wrap">'+p.interests.map(function(t){return '<span style="font-size:13px;font-weight:700;padding:7px 12px;border-radius:14px;background:#1E2852">'+t+'</span>';}).join('')+'</div>'+
         '<div style="font-size:14px;color:var(--soft)"><b style="color:var(--mint)">Offen für:</b> '+p.open+'</div>'+action+
         '<div class="row" style="gap:8px"><button type="button" data-a="reportP" style="flex:1;height:44px;border-radius:22px;border:1px solid #2A356A;background:transparent;color:var(--soft);font-weight:700">Melden</button><button type="button" data-a="blockP" style="flex:1;height:44px;border-radius:22px;border:1px solid #2A356A;background:transparent;color:var(--coral);font-weight:700">Blockieren</button></div>'+
       '</div></div></div>';
+}
+
+function vMatch(){
+  var p = crewById(S.match);
+  return '<div class="abs col in" role="dialog" aria-modal="true" aria-label="Match mit '+p.name+'" style="inset:0;z-index:9;background:radial-gradient(circle at 50% 30%,#1F3D5C 0%,#070C22 70%);align-items:center;justify-content:center;gap:22px;padding:30px 26px calc(env(safe-area-inset-bottom) + 30px);text-align:center">'+
+    '<div class="kicker" style="color:var(--mint)">IHR HABT BEIDE HALLO GESAGT</div>'+
+    '<h1 class="u" style="margin:0;font-weight:800;font-size:34px;line-height:1.1">Match mit<br>'+p.name+'!</h1>'+
+    '<div class="row" style="justify-content:center;margin:10px 0">'+
+      '<img src="'+P.alex+'" alt="Du" style="width:130px;height:130px;border-radius:40px;object-fit:cover;border:4px solid var(--mint);transform:rotate(-8deg)">'+
+      '<img src="'+P[p.id]+'" alt="'+p.name+'" style="width:130px;height:130px;border-radius:40px;object-fit:cover;border:4px solid var(--coral);transform:rotate(8deg);margin-left:-22px"></div>'+
+    (common(p).length?'<div style="color:var(--soft);font-size:15px">Ihr mögt beide <b style="color:var(--txt)">'+common(p).join(' und ')+'</b>.</div>':'')+
+    '<button type="button" class="btn btn-mint" data-a="chat" data-v="'+p.id+'" style="height:58px;border-radius:29px;font-size:17px">Nachricht schreiben</button>'+
+    '<button type="button" class="btn btn-ghost" data-a="closeMatch">Weiter entdecken</button>'+
+    '<div class="row" style="gap:8px;font-size:12px;color:var(--muted);line-height:1.45;text-align:left"><span style="color:var(--mint);flex-shrink:0">'+ic.shield+'</span>Tipp: Trefft euch beim ersten Mal an einem öffentlichen Ort, zum Beispiel an der Poolbar.</div></div>';
+}
+
+var shownSheets = {};
+function sheet(label, inner, close){
+  var anim = shownSheets[label] ? '' : ' in'; shownSheets[label] = true;
+  return '<div class="abs col" role="dialog" aria-modal="true" aria-label="'+label+'" style="inset:0;background:rgba(4,7,20,.75);justify-content:flex-end;z-index:8">'+
+    '<button type="button" aria-label="Schließen" data-a="'+close+'" style="flex:1;border:none;background:transparent"></button>'+
+    '<div class="col'+anim+'" style="background:var(--card);border-radius:32px 32px 0 0;padding:12px 22px calc(env(safe-area-inset-bottom) + 26px);gap:16px">'+
+    '<div class="row" style="justify-content:center"><span style="width:44px;height:5px;border-radius:3px;background:rgba(255,255,255,.35);display:block"></span></div>'+inner+'</div></div>';
+}
+
+function vPass(){
+  var li = function(t,s){ return '<div class="row" style="gap:12px;align-items:flex-start"><span style="width:26px;height:26px;border-radius:13px;background:var(--sand);color:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+ic.check+'</span><div class="col" style="gap:2px"><span style="font-weight:800">'+t+'</span><span style="font-size:13px;color:var(--muted)">'+s+'</span></div></div>'; };
+  var inner = '<div class="row" style="gap:12px"><span style="width:48px;height:48px;border-radius:16px;background:var(--sand);color:var(--bg);display:flex;align-items:center;justify-content:center">'+ic.ticket+'</span>'+
+    '<div class="col" style="gap:2px"><div class="u" style="font-weight:800;font-size:20px">Vayrilo Pass</div><div style="font-size:13px;color:var(--soft)">Für deine Reise · Mallorca, 12.–19. Juli</div></div></div>'+
+    li('Unbegrenzt Hallo sagen','Ohne Tageslimit, im Hotel und auf der ganzen Insel')+
+    li('Sehen, wer dir Hallo gesagt hat','Ein Tipp genügt, und es ist ein Match')+
+    li('30 Tage vor Anreise sichtbar','Lern die Leute kennen, bevor du landest')+
+    (S.pass ? '<div class="btn" style="border:2px solid var(--sand);color:var(--sand)">'+ic.check+'Pass ist aktiv</div>' :
+    '<button type="button" class="btn" data-a="buyPass" style="background:var(--sand);color:var(--bg)">Pass holen · 9,99 €</button>'+
+    '<div style="font-size:12px;color:var(--muted);text-align:center;margin-top:-6px">Einmal pro Reise, kein Abo. Alles andere bleibt kostenlos.</div>');
+  return sheet('Vayrilo Pass', inner, 'passClose');
+}
+
+function vPlan(){
+  var pl = S.plan;
+  var chips = function(key, opts){ return '<div class="row" style="gap:8px;flex-wrap:wrap">'+opts.map(function(o){ var on=pl[key]===o; return '<button type="button" data-a="planSet" data-v="'+key+'|'+o+'" aria-pressed="'+on+'" style="height:38px;padding:0 14px;border-radius:19px;font-size:13px;font-weight:700;border:1.5px solid '+(on?'#FF7E6B':'#2A356A')+';background:'+(on?'#FF7E6B':'transparent')+';color:'+(on?'#070C22':'#F4F6FF')+'">'+o+'</button>'; }).join('')+'</div>'; };
+  var lab = function(t){ return '<div style="font-size:12px;font-weight:800;color:var(--muted);letter-spacing:1px;margin-bottom:-6px">'+t+'</div>'; };
+  var inner = '<div class="col" style="gap:4px"><div class="u" style="font-weight:800;font-size:20px">Plan erstellen</div><div style="font-size:13px;color:var(--muted)">Die ganze Crew Casa Sol sieht ihn und kann mitmachen.</div></div>'+
+    '<label for="plantitle" class="sr">Was habt ihr vor?</label>'+
+    '<input id="plantitle" data-input="planTitle" value="'+esc(pl.title)+'" placeholder="z. B. Sunset am Pool" autocomplete="off" style="height:54px;border-radius:18px;border:1.5px solid #2A356A;background:var(--bg);color:var(--txt);padding:0 16px;font-size:16px">'+
+    lab('WANN')+chips('day',['Heute','Morgen','Mi','Do'])+chips('time',['17:00','19:00','21:00','22:30'])+
+    lab('WO')+chips('place',['Pool','Rooftop-Bar','Lobby','Strand vorm Hotel'])+
+    '<div class="row" style="gap:8px;font-size:12px;color:var(--muted);line-height:1.4"><span style="color:var(--mint);flex-shrink:0">'+ic.shield+'</span>Treffpunkte sind immer öffentliche Orte im oder am Hotel.</div>'+
+    '<button type="button" class="btn" data-a="planSave" style="background:var(--coral);color:var(--bg)">Plan teilen</button>';
+  return sheet('Plan erstellen', inner, 'planClose');
 }
 
 function vToast(){
@@ -468,15 +623,46 @@ function render(){
   var html = '';
   if(S.stage==='splash') html = vSplash();
   else if(S.stage==='verify') html = vVerify();
+  else if(S.stage==='selfie') html = vSelfie();
   else {
     var body = {discover:vDiscover,trip:vTrip,events:vEvents,chats:vChats,profile:vProfile}[S.tab]();
     html = '<div class="abs scroll" data-scroll="main-'+S.tab+'" style="inset:0;padding-bottom:calc(env(safe-area-inset-bottom) + 110px)">'+body+'</div>'+vNav()+
-      (S.hotel?vHotel():'')+(S.chat?vChat():'')+(S.person?vPerson():'');
+      (S.hotel?vHotel():'')+(S.chat?vChat():'')+(S.person?vPerson():'')+(S.passSheet?vPass():'')+(S.planSheet?vPlan():'')+(S.match?vMatch():'');
   }
   root.innerHTML = html + vToast();
   root.querySelectorAll('[data-scroll]').forEach(function(el){ var k=el.getAttribute('data-scroll'); if(keep[k]) el.scrollTop = keep[k]; });
   var box = document.getElementById('msgs'); if(box) box.scrollTop = box.scrollHeight;
   if(focusId){ var f = document.getElementById(focusId); if(f){ f.focus(); if(f.setSelectionRange){ var l=f.value.length; f.setSelectionRange(l,l); } } }
+  if(!S.passSheet) delete shownSheets['Vayrilo Pass'];
+  if(!S.planSheet) delete shownSheets['Plan erstellen'];
+  bindSwipe();
+}
+
+/* ---------- swipe ---------- */
+function bindSwipe(){
+  var c = document.getElementById('swipe'); if(!c) return;
+  var x0=null, dx=0, like=c.querySelector('.stamp-like'), pass=c.querySelector('.stamp-pass');
+  function move(d){ c.style.transform='translateX('+d+'px) rotate('+(d/18)+'deg)'; like.style.opacity=Math.max(0,Math.min(1,d/90)); pass.style.opacity=Math.max(0,Math.min(1,-d/90)); }
+  c.addEventListener('pointerdown',function(e){ if(e.target.closest('button')) return; x0=e.clientX; dx=0; c.style.transition='none'; c.style.cursor='grabbing'; try{c.setPointerCapture(e.pointerId);}catch(_){} });
+  c.addEventListener('pointermove',function(e){ if(x0===null) return; dx=e.clientX-x0; move(dx); });
+  function end(){ if(x0===null) return; x0=null; c.style.cursor='grab';
+    if(dx>90) fly(1); else if(dx<-90) fly(-1); else { c.style.transition='transform .25s ease'; move(0); } }
+  c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+}
+function fly(dir){
+  var c = document.getElementById('swipe'); if(!c) return;
+  var id = c.getAttribute('data-id');
+  if(dir>0 && !S.pass && S.likes<=0){ c.style.transition='transform .25s ease'; c.style.transform='none'; set({passSheet:true}); return; }
+  c.style.transition='transform .3s ease-in'; c.style.transform='translateX('+(dir*520)+'px) rotate('+(dir*24)+'deg)';
+  var st = c.querySelector(dir>0?'.stamp-like':'.stamp-pass'); if(st) st.style.opacity=1;
+  setTimeout(function(){ if(dir>0) like(id); else { S.swiped[id]='pass'; render(); } },260);
+}
+function like(id){
+  var p = crewById(id);
+  if(!S.pass && S.likes<=0){ set({passSheet:true}); return; }
+  S.swiped[id]='like'; S.requested[id]=true; if(!S.pass) S.likes--;
+  if(p.likedMe){ S.matched[id]=true; if(id==='tim') S.tim='accepted'; S.person=null; set({match:id}); }
+  else { S.person=null; flash('Hallo an '+p.name+' gesendet. Sagt '+p.name+' auch Hallo, ist es ein Match.'); }
 }
 function set(p){ for(var k in p) S[k]=p[k]; render(); }
 var toastT;
@@ -486,18 +672,44 @@ function flash(t){ S.toast=t; render(); clearTimeout(toastT); toastT=setTimeout(
 var A = {
   adult:function(){ set({adult:!S.adult}); },
   start:function(){ if(!S.adult){ flash('Bitte bestätige zuerst, dass du mindestens 18 bist.'); return; } set({stage:'verify'}); },
-  skip:function(){ set({stage:'app',tab:'trip'}); },
-  backVerify:function(){ set({stage:S.adult?'app':'splash',hotel:null}); },
-  confirm:function(){ S.stage='app'; S.tab='trip'; S.hotel=null; flash('Aufenthalt bestätigt. Willkommen in der Crew!'); },
+  skip:function(){ set({stage:'app',tab:'trip',inApp:true,selfie:true}); },
+  backVerify:function(){ set({stage:S.inApp?'app':'splash',hotel:null}); },
+  selfieBack:function(){ set({stage:S.inApp?'app':'verify'}); },
+  confirm:function(){ S.hotel=null; S.stage='selfie'; flash('Aufenthalt bestätigt. Noch ein kurzer Schritt.'); },
+  selfie:function(){ set({checking:true}); setTimeout(function(){ S.checking=false; S.selfie=true; S.inApp=true; S.stage='app'; S.tab='trip'; flash('Verifiziert! Willkommen in der Crew.'); },1400); },
+  selfieLater:function(){ S.inApp=true; S.stage='app'; S.tab='trip'; flash('Willkommen in der Crew! Den Selfie-Check findest du im Profil.'); },
+  toSelfie:function(){ set({stage:'selfie'}); },
+  disc:function(v){ set({disc:v}); },
+  scope:function(v){ set({scope:v,disc:'people',passSheet:false}); },
+  island:function(){ A.tab('discover'); set({disc:'people',scope:'island'}); },
+  swLike:function(){ fly(1); },
+  swPass:function(){ fly(-1); },
+  passOpen:function(){ set({passSheet:true,person:null}); },
+  passClose:function(){ set({passSheet:false}); },
+  buyPass:function(){ S.pass=true; S.passSheet=false; flash('Pass aktiv (Test-App, kein echter Kauf). Jetzt siehst du, wer dir Hallo gesagt hat.'); },
+  dating:function(){ var was=S.dating; S.dating=!was; flash(was?'Offen für Dates ist aus.':'An. Nur wer das auch eingeschaltet hat, sieht es bei dir.'); },
+  notify:function(v){ flash('Gemerkt! Wir melden uns, sobald '+v+' startet.'); },
+  closeMatch:function(){ set({match:null}); },
+  planSet:function(v){ var kv=v.split('|'); S.plan[kv[0]]=kv[1]; render(); },
+  planClose:function(){ set({planSheet:false}); },
+  planSave:function(){
+    var pl=S.plan, t=(pl.title||'').trim();
+    if(!t){ flash('Gib deinem Plan noch einen Namen, z. B. „Sunset am Pool“.'); var i=document.getElementById('plantitle'); if(i) i.focus(); return; }
+    var img={'Pool':'poolbar','Rooftop-Bar':'rooftop','Lobby':'casasol','Strand vorm Hotel':'splash'}[pl.place];
+    var id='p'+(++S.planN);
+    EVENTS.unshift({id:id,title:t,day:pl.day.toUpperCase(),time:pl.time,when:pl.day+' · '+pl.time,where:pl.place+', Casa Sol',host:'VON DIR',hotel:false,mine:true,count:0,img:img,av:['alex']});
+    S.joined[id]=true; S.planSheet=false; S.evFilter='all'; S.plan={title:'',day:'Heute',time:'19:00',place:'Pool'};
+    flash('Dein Plan ist online. Die Crew sieht ihn jetzt.');
+  },
   scan:function(){ flash('Die Kamera öffnet sich zum Scannen (in der Test-App nicht aktiv).'); },
-  tab:function(v){ set({tab:v,hotel:null,chat:null,person:null,menu:false,seenChats:S.seenChats||v==='chats'}); var m=root.querySelector('[data-scroll^="main"]'); if(m) m.scrollTop=0; },
+  tab:function(v){ set({tab:v,hotel:null,chat:null,person:null,menu:false,match:null,passSheet:false,planSheet:false,seenChats:S.seenChats||v==='chats'}); var m=root.querySelector('[data-scroll^="main"]'); if(m) m.scrollTop=0; },
   region:function(v){ set({region:v}); },
   hotel:function(v){ set({hotel:v}); },
   closeHotel:function(){ set({hotel:null}); },
   book:function(){ flash('Hier geht es zur Buchungsseite des Hotels (Test-App).'); },
   toVerify:function(){ set({stage:'verify',hotel:null}); },
   more:function(){ flash('Hier erscheint die ganze Crew (die Test-App zeigt 6).'); },
-  chat:function(v){ set({chat:v,person:null,menu:false,draft:''}); },
+  chat:function(v){ set({chat:v,person:null,match:null,menu:false,draft:''}); },
   closeChat:function(){ set({chat:null,menu:false}); },
   menu:function(){ set({menu:!S.menu}); },
   report:function(){ S.menu=false; flash('Danke für die Meldung. Unser Team prüft das.'); },
@@ -506,19 +718,19 @@ var A = {
   leave:function(){ S.menu=false; S.chat=null; flash('In der Test-App bleibst du in der Gruppe.'); },
   person:function(v){ set({person:v}); },
   closePerson:function(){ set({person:null}); },
-  hello:function(v){ S.requested[v]=true; flash('Hallo an '+crewById(v).name+' gesendet.'); },
+  hello:function(v){ like(v); },
   reportP:function(){ S.person=null; flash('Danke für die Meldung. Unser Team prüft das.'); },
   blockP:function(){ S.blocked[S.person]=true; S.person=null; flash('Blockiert. Ihr seht euch gegenseitig nicht mehr.'); },
   join:function(v){ var j=!!S.joined[v]; S.joined[v]=!j; flash(j?'Du bist nicht mehr dabei.':'Du bist dabei! Der Event-Chat ist offen.'); },
   evf:function(v){ set({evFilter:v}); },
-  create:function(){ flash('Eigene Events erstellen kommt in Version 2.'); },
-  accTim:function(){ S.tim='accepted'; flash('Du kannst jetzt mit Tim schreiben.'); },
-  decTim:function(){ S.tim='declined'; flash('Abgelehnt. Tim erfährt davon nichts.'); },
+  create:function(){ set({planSheet:true}); },
+  accTim:function(){ S.tim='accepted'; S.matched.tim=true; flash('Du kannst jetzt mit Tim schreiben.'); },
+  decTim:function(){ S.tim='declined'; S.swiped.tim='pass'; flash('Abgelehnt. Tim erfährt davon nichts.'); },
   open:function(v){ S.open[v]=!S.open[v]; render(); },
   invis:function(){ var was=S.invisible; S.invisible=!was; flash(was?'Du bist wieder sichtbar.':'Unsichtbar: Die Crew sieht dich nicht.'); },
   edit:function(){ flash('Profil bearbeiten kommt in der echten App.'); },
   settings:function(){ flash('Einstellungen kommen in der echten App.'); },
-  plus:function(){ flash('Vayrilo Plus kommt später. Zum Start ist alles kostenlos.'); }
+  plus:function(){ set({passSheet:true}); }
 };
 root.addEventListener('click',function(e){
   var el = e.target.closest('[data-a]'); if(!el || !root.contains(el)) return;
@@ -527,7 +739,7 @@ root.addEventListener('click',function(e){
   fn(el.getAttribute('data-v'));
 });
 root.addEventListener('input',function(e){
-  var k = e.target.getAttribute && e.target.getAttribute('data-input'); if(k) S[k]=e.target.value;
+  var k = e.target.getAttribute && e.target.getAttribute('data-input'); if(k==='planTitle') S.plan.title=e.target.value; else if(k) S[k]=e.target.value;
 });
 root.addEventListener('submit',function(e){
   if(e.target.getAttribute('data-form')!=='send') return;
